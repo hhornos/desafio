@@ -1,0 +1,10 @@
+#API PORT
+API_PORT=5000
+
+# DATABASE
+DB_DRIVER=mysql+mysqldb
+DB_HOST=127.0.0.1
+DB_PORT=13306
+DB_NAME=desafio
+DB_USER=root
+DB_PASSWORD=desafio
