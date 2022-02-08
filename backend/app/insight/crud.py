@@ -3,7 +3,6 @@ Module that contains the user database crud functions
 """
 from cgitb import text
 from datetime import datetime
-from sqlite3 import IntegrityError
 from tkinter.messagebox import NO
 
 from sqlalchemy.orm import Session
@@ -15,8 +14,7 @@ from app import exceptions as app_exceptions
 
 async def create_tag(data_base: Session, tag: schemas.TagRequest):
     ''' create_tag funcion '''
-    db_tag = models.Tag(
-        name = tag.name)
+    db_tag = models.Tag(**tag.dict())
 
     try:
         data_base.add(db_tag)
@@ -58,25 +56,39 @@ async def delete_tag(data_base: Session, id: int):
 
 async def update_tag(data_base: Session, id: int, tag: schemas.TagRequest):
     ''' update_tag funcion '''
-    if data_base.query(models.Tag).filter(models.Tag.id == id).update(tag.__dict__) <= 0:
+    filtered_tags = data_base.query(models.Tag).filter(models.Tag.id == id)
+    if filtered_tags.update(tag.__dict__) <= 0:
         data_base.rollback()
         raise app_exceptions.NotFound()
 
     data_base.commit()
-    return 
+    return filtered_tags.first()
         
 
 
 async def create_card(data_base: Session, card: schemas.CardCreate):
     ''' create_card funcion '''
+    print(card.tags)
+    minhas_tags = data_base.query(models.Tag).filter(models.Tag.id.in_(card.tags)).all()
+    if minhas_tags.__len__() != card.tags.__len__():
+        raise app_exceptions.ListEntityNotFound()
+
     db_card = models.Card(
-        text = card.texto,
-        tags = card.tags)
+        texto=card.texto,
+        tags=data_base.query(models.Tag).filter(models.Tag.id.in_(card.tags)).all()
+    )
 
     data_base.add(db_card)
     data_base.commit()
     data_base.refresh(db_card)
     return db_card
+
+# def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
+#     db_item = models.Item(**item.dict(), owner_id=user_id)
+#     db.add(db_item)
+#     db.commit()
+#     db.refresh(db_item)
+#     return db_item
 
 
 async def get_card(data_base: Session, id: int):
@@ -104,3 +116,4 @@ async def update_card(data_base: Session, id: int, card: schemas.CardUpdate):
     data_base.query(models.Card).update(db_card)
     data_base.commit()
     return db_card
+

@@ -13,11 +13,3 @@ services:
       - '13306'
     volumes:
       - ./MySql:/var/lib/mysql
-  
-  backend:
-    env_file:
-      - ./backend/.env
-    build:
-      context: ./backend
-    ports:
-      - '5000:5000'

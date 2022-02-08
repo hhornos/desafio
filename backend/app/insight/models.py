@@ -3,15 +3,19 @@
 Module that contains the user database models
 """
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
 from app.db_session import Base
 
+card_tag_association_table = Table('card_tag_association_table', Base.metadata,
+    Column('tag_id', ForeignKey('tag.id')),
+    Column('card_id', ForeignKey('card.id'))
+)
 
 class Tag(Base):
     ''' Tag Model '''
-    __tablename__ = "tags"
+    __tablename__ = "tag"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(40), unique=True)
@@ -19,12 +23,12 @@ class Tag(Base):
 
 class Card(Base):
     ''' Card Model '''
-    __tablename__ = "cards"
+    __tablename__ = "card"
 
     id = Column(Integer, primary_key=True, index=True)
-    text = Column(String(400))
-    created = Column(DateTime, default=datetime.utcnow)
-    modified = Column(DateTime)
-    tag_id = Column(Integer, ForeignKey("tags.id"))
-
-    tags = relationship(Tag)
+    texto = Column(String(400))
+    data_criacao = Column(DateTime, default=datetime.utcnow)
+    data_modificacao = Column(DateTime)
+    
+    tags = relationship("Tag",
+                    secondary=card_tag_association_table)

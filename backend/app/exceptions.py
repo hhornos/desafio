@@ -16,3 +16,7 @@ class NotFound(Exception):
 
 class AlreadyExists(Exception):
     """Exception raised when an information already exists in either API."""
+
+
+class ListEntityNotFound(Exception):
+    """Exception raised when an entity of primary key list not found in request."""

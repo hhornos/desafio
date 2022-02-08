@@ -69,6 +69,23 @@ def request_validation_exception_handler(request, exc: RequestValidationError):
     )
 
 
+@APP.exception_handler(app_exceptions.ListEntityNotFound)
+def request_validation_exception_handler(request, exc: app_exceptions.ListEntityNotFound):
+    """Handler to normalize validation error responses"""
+    LOGGER.info('UNPROCESSABLE ENTITY')
+
+    errors = exc.errors()
+    normalized_errors = []
+
+    for error in errors:
+        msg = {"msg": f"{error['loc'][-1]}: {error['msg']}"}
+        normalized_errors.append(msg)
+
+    return JSONResponse(
+        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+        content={'detail': normalized_errors}
+    )
+
 def build_api():
     """ ADD CORS SETTINGS """
     APP.add_middleware(

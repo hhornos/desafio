@@ -5,7 +5,6 @@ Module that contains the event endpoint api contracts
 """
 from datetime import datetime
 from typing import List
-from unicodedata import name
 from pydantic import BaseModel
 
 
@@ -21,6 +20,7 @@ class TagResponse(TagBase):
     class Config:
         ''' Config Schema - orm_mode=True'''
         orm_mode = True
+        
 
 
 class TagRequest(TagBase):
@@ -36,7 +36,7 @@ class Card(CardBase):
     ''' Card Schema '''
     id: int
     data_criacao: datetime
-    data_modificacao: datetime
+    data_modificacao: datetime = None
     tags: List[TagResponse] = []
 
     class Config:
@@ -46,7 +46,11 @@ class Card(CardBase):
 
 class CardCreate(CardBase):
     ''' CardCreate Schema '''
-    tags: List[TagResponse] = []
+    tags: List[int] = []
+
+    class Config:
+        ''' Config Schema - orm_mode=True'''
+        orm_mode = True
 
 
 class CardUpdate(CardCreate):
